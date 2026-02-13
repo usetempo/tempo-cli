@@ -236,7 +236,9 @@ func TestIsInstalled(t *testing.T) {
 
 func TestEnsureGitignore_CreatesNew(t *testing.T) {
 	repo := setupFakeRepo(t)
-	ensureGitignore(repo)
+	if err := ensureGitignore(repo); err != nil {
+		t.Fatal(err)
+	}
 
 	data, _ := os.ReadFile(filepath.Join(repo, ".gitignore"))
 	if !strings.Contains(string(data), ".tempo/") {
@@ -250,7 +252,9 @@ func TestEnsureGitignore_AppendsToExisting(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	ensureGitignore(repo)
+	if err := ensureGitignore(repo); err != nil {
+		t.Fatal(err)
+	}
 
 	data, _ := os.ReadFile(filepath.Join(repo, ".gitignore"))
 	content := string(data)
@@ -264,8 +268,12 @@ func TestEnsureGitignore_AppendsToExisting(t *testing.T) {
 
 func TestEnsureGitignore_Idempotent(t *testing.T) {
 	repo := setupFakeRepo(t)
-	ensureGitignore(repo)
-	ensureGitignore(repo)
+	if err := ensureGitignore(repo); err != nil {
+		t.Fatal(err)
+	}
+	if err := ensureGitignore(repo); err != nil {
+		t.Fatal(err)
+	}
 
 	data, _ := os.ReadFile(filepath.Join(repo, ".gitignore"))
 	if strings.Count(string(data), ".tempo/") != 1 {
