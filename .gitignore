@@ -1,3 +1,4 @@
 dist/
 .tempo/
+tempo-cli
 *.exe
