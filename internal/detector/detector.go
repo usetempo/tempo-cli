@@ -109,6 +109,24 @@ func Detect(repoRoot string) (*Attribution, error) {
 		}
 	}
 
+	// Copilot Agent
+	if session, err := detectCopilot(repoRoot, maxAge); err == nil && session != nil {
+		matched := intersect(session.FilesWritten, committedSet)
+		if len(matched) > 0 {
+			fileMatchDetected[ToolCopilot] = true
+			attr.Detections = append(attr.Detections, Detection{
+				Tool:               ToolCopilot,
+				Confidence:         ConfidenceHigh,
+				Method:             MethodFileMatch,
+				FilesMatched:       matched,
+				FilesCommitted:     len(committedFiles),
+				AIFiles:            len(matched),
+				Model:              session.Model,
+				SessionDurationSec: session.SessionDurationSec,
+			})
+		}
+	}
+
 	// Strategy 2: Process detection (MEDIUM confidence)
 	for _, tool := range detectProcesses() {
 		if !fileMatchDetected[tool] {
