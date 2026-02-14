@@ -13,6 +13,7 @@ Tempo CLI uses three detection strategies, applied in order of confidence:
 | **Git trailers** | Medium | Parses `Co-Authored-By` trailers in commit messages |
 
 ## Install
+Supported platforms: macOS and Linux (Intel & ARM).
 
 **Homebrew:**
 
