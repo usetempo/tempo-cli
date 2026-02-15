@@ -6,10 +6,37 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"testing"
 	"time"
 )
+
+// testCursorWorkspaceStorage returns the platform-correct Cursor workspace
+// storage base dir under the given home directory (mirrors cursorBaseDirs).
+func testCursorWorkspaceStorage(homeDir string) string {
+	switch runtime.GOOS {
+	case "darwin":
+		return filepath.Join(homeDir, "Library", "Application Support", "Cursor", "User", "workspaceStorage")
+	case "linux":
+		return filepath.Join(homeDir, ".config", "Cursor", "User", "workspaceStorage")
+	default:
+		return filepath.Join(homeDir, "Library", "Application Support", "Cursor", "User", "workspaceStorage")
+	}
+}
+
+// testCursorGlobalStorage returns the platform-correct Cursor global storage
+// dir under the given home directory (mirrors cursorGlobalDBPath).
+func testCursorGlobalStorage(homeDir string) string {
+	switch runtime.GOOS {
+	case "darwin":
+		return filepath.Join(homeDir, "Library", "Application Support", "Cursor", "User", "globalStorage")
+	case "linux":
+		return filepath.Join(homeDir, ".config", "Cursor", "User", "globalStorage")
+	default:
+		return filepath.Join(homeDir, "Library", "Application Support", "Cursor", "User", "globalStorage")
+	}
+}
 
 // skipIfNoSQLite skips the test if sqlite3 CLI is not available.
 func skipIfNoSQLite(t *testing.T) {
@@ -40,7 +67,7 @@ func TestFindCursorWorkspace(t *testing.T) {
 	repoRoot := "/Users/jose/projects/myapp"
 
 	// Create a workspace storage dir with matching workspace.json
-	wsDir := filepath.Join(homeDir, "Library", "Application Support", "Cursor", "User", "workspaceStorage", "abc123")
+	wsDir := filepath.Join(testCursorWorkspaceStorage(homeDir), "abc123")
 	if err := os.MkdirAll(wsDir, 0755); err != nil {
 		t.Fatal(err)
 	}
@@ -53,7 +80,7 @@ func TestFindCursorWorkspace(t *testing.T) {
 	}
 
 	// Create a non-matching workspace
-	otherDir := filepath.Join(homeDir, "Library", "Application Support", "Cursor", "User", "workspaceStorage", "def456")
+	otherDir := filepath.Join(testCursorWorkspaceStorage(homeDir), "def456")
 	if err := os.MkdirAll(otherDir, 0755); err != nil {
 		t.Fatal(err)
 	}
@@ -496,7 +523,7 @@ func TestDetectCursor_Integration(t *testing.T) {
 	repoRoot := "/Users/jose/projects/myapp"
 
 	// Set up workspace storage
-	wsDir := filepath.Join(homeDir, "Library", "Application Support", "Cursor", "User", "workspaceStorage", "abc123")
+	wsDir := filepath.Join(testCursorWorkspaceStorage(homeDir), "abc123")
 	if err := os.MkdirAll(wsDir, 0755); err != nil {
 		t.Fatal(err)
 	}
@@ -530,7 +557,7 @@ func TestDetectCursor_Integration(t *testing.T) {
 	})
 
 	// Create global state.vscdb with bubbles and composer data
-	globalDir := filepath.Join(homeDir, "Library", "Application Support", "Cursor", "User", "globalStorage")
+	globalDir := testCursorGlobalStorage(homeDir)
 	if err := os.MkdirAll(globalDir, 0755); err != nil {
 		t.Fatal(err)
 	}

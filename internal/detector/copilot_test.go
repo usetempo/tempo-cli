@@ -4,9 +4,23 @@ import (
 	"encoding/json"
 	"os"
 	"path/filepath"
+	"runtime"
 	"testing"
 	"time"
 )
+
+// testVSCodeWorkspaceStorage returns the platform-correct VS Code workspace
+// storage base dir under the given home directory (mirrors vscodeBaseDirs).
+func testVSCodeWorkspaceStorage(homeDir string) string {
+	switch runtime.GOOS {
+	case "darwin":
+		return filepath.Join(homeDir, "Library", "Application Support", "Code", "User", "workspaceStorage")
+	case "linux":
+		return filepath.Join(homeDir, ".config", "Code", "User", "workspaceStorage")
+	default:
+		return filepath.Join(homeDir, "Library", "Application Support", "Code", "User", "workspaceStorage")
+	}
+}
 
 func TestUriToPath(t *testing.T) {
 	tests := []struct {
@@ -33,7 +47,7 @@ func TestFindCopilotWorkspace(t *testing.T) {
 	repoRoot := "/Users/jose/projects/myapp"
 
 	// Create a workspace storage dir with matching workspace.json
-	wsDir := filepath.Join(homeDir, "Library", "Application Support", "Code", "User", "workspaceStorage", "abc123")
+	wsDir := filepath.Join(testVSCodeWorkspaceStorage(homeDir), "abc123")
 	if err := os.MkdirAll(wsDir, 0755); err != nil {
 		t.Fatal(err)
 	}
@@ -47,7 +61,7 @@ func TestFindCopilotWorkspace(t *testing.T) {
 	}
 
 	// Create a non-matching workspace
-	otherDir := filepath.Join(homeDir, "Library", "Application Support", "Code", "User", "workspaceStorage", "def456")
+	otherDir := filepath.Join(testVSCodeWorkspaceStorage(homeDir), "def456")
 	if err := os.MkdirAll(otherDir, 0755); err != nil {
 		t.Fatal(err)
 	}
@@ -306,7 +320,7 @@ func TestDetectCopilot_Integration(t *testing.T) {
 	repoRoot := "/Users/jose/myapp"
 
 	// Set up workspace storage
-	wsDir := filepath.Join(homeDir, "Library", "Application Support", "Code", "User", "workspaceStorage", "abc123")
+	wsDir := filepath.Join(testVSCodeWorkspaceStorage(homeDir), "abc123")
 	chatDir := filepath.Join(wsDir, "chatSessions")
 	if err := os.MkdirAll(chatDir, 0755); err != nil {
 		t.Fatal(err)
@@ -364,7 +378,7 @@ func TestDetectCopilot_MergesSessions(t *testing.T) {
 
 	repoRoot := "/Users/jose/myapp"
 
-	wsDir := filepath.Join(homeDir, "Library", "Application Support", "Code", "User", "workspaceStorage", "abc123")
+	wsDir := filepath.Join(testVSCodeWorkspaceStorage(homeDir), "abc123")
 	chatDir := filepath.Join(wsDir, "chatSessions")
 	if err := os.MkdirAll(chatDir, 0755); err != nil {
 		t.Fatal(err)
