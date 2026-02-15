@@ -12,7 +12,7 @@ const endMarker = "# --- END TEMPO CLI HOOK ---"
 
 const postCommitHook = `# --- TEMPO CLI HOOK ---
 if command -v tempo-cli >/dev/null 2>&1; then
-  tempo-cli _detect --hook post-commit &
+  tempo-cli _detect --hook post-commit
 fi
 # --- END TEMPO CLI HOOK ---`
 
