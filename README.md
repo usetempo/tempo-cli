@@ -18,7 +18,7 @@ Supported platforms: macOS and Linux (Intel & ARM).
 **Homebrew:**
 
 ```sh
-brew install josepnunes/tap/tempo-cli
+brew install usetempo/tap/tempo-cli
 ```
 
 **curl:**
@@ -30,7 +30,7 @@ curl -fsSL https://get.tempo.dev/install.sh | sh
 **Go:**
 
 ```sh
-go install github.com/josepnunes/tempo-cli@latest
+go install github.com/usetempo/tempo-cli@latest
 ```
 
 ## Quick start
@@ -151,7 +151,7 @@ If no API token is configured, Tempo CLI works exactly the same — detection ru
 ## Development
 
 ```sh
-git clone https://github.com/josepnunes/tempo-cli
+git clone https://github.com/usetempo/tempo-cli
 cd tempo-cli
 go build ./...
 go test ./...

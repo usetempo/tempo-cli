@@ -7,10 +7,10 @@ import (
 	"strings"
 
 	"github.com/spf13/cobra"
-	"github.com/josepnunes/tempo-cli/internal/config"
-	"github.com/josepnunes/tempo-cli/internal/detector"
-	"github.com/josepnunes/tempo-cli/internal/hooks"
-	"github.com/josepnunes/tempo-cli/internal/sender"
+	"github.com/usetempo/tempo-cli/internal/config"
+	"github.com/usetempo/tempo-cli/internal/detector"
+	"github.com/usetempo/tempo-cli/internal/hooks"
+	"github.com/usetempo/tempo-cli/internal/sender"
 )
 
 var cliVersion string

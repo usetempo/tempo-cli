@@ -3,7 +3,7 @@ package main
 import (
 	"os"
 
-	"github.com/josepnunes/tempo-cli/cmd/tempo"
+	"github.com/usetempo/tempo-cli/cmd/tempo"
 )
 
 var version = "dev"

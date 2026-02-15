@@ -10,8 +10,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/josepnunes/tempo-cli/internal/config"
-	"github.com/josepnunes/tempo-cli/internal/detector"
+	"github.com/usetempo/tempo-cli/internal/config"
+	"github.com/usetempo/tempo-cli/internal/detector"
 )
 
 // SavePending atomically writes an attribution to .tempo/pending/.

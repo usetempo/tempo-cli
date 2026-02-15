@@ -1,4 +1,4 @@
-module github.com/josepnunes/tempo-cli
+module github.com/usetempo/tempo-cli
 
 go 1.24.0
 

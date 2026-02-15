@@ -1,7 +1,7 @@
 #!/bin/sh
 set -e
 
-REPO="josepnunes/tempo-cli"
+REPO="usetempo/tempo-cli"
 BINARY="tempo-cli"
 
 # Detect OS

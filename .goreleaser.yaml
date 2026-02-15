@@ -27,9 +27,9 @@ checksum:
 
 brews:
   - repository:
-      owner: josepnunes
+      owner: usetempo
       name: homebrew-tap
-    homepage: https://github.com/josepnunes/tempo-cli
+    homepage: https://github.com/usetempo/tempo-cli
     description: AI code attribution for git commits
     install: |
       bin.install "tempo-cli"
