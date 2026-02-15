@@ -127,6 +127,25 @@ func Detect(repoRoot string) (*Attribution, error) {
 		}
 	}
 
+	// Cursor Agent
+	if session, err := detectCursor(repoRoot, maxAge); err == nil && session != nil {
+		matched := intersect(session.FilesWritten, committedSet)
+		if len(matched) > 0 {
+			fileMatchDetected[ToolCursor] = true
+			attr.Detections = append(attr.Detections, Detection{
+				Tool:               ToolCursor,
+				Confidence:         ConfidenceHigh,
+				Method:             MethodFileMatch,
+				FilesMatched:       matched,
+				FilesCommitted:     len(committedFiles),
+				AIFiles:            len(matched),
+				Model:              session.Model,
+				TokenUsage:         session.TotalTokens,
+				SessionDurationSec: session.SessionDurationSec,
+			})
+		}
+	}
+
 	// Strategy 2: Process detection (MEDIUM confidence)
 	for _, tool := range detectProcesses() {
 		if !fileMatchDetected[tool] {
