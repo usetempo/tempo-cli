@@ -182,11 +182,35 @@ func detectClaudeCode(repoRoot string, maxAge time.Duration) (*SessionInfo, erro
 	if sessionDir == "" {
 		return nil, nil
 	}
-	jsonlPath, err := findLatestSession(sessionDir, maxAge)
+	paths, err := findRecentSessions(sessionDir, maxAge)
 	if err != nil {
 		return nil, err
 	}
-	return parseClaudeSession(jsonlPath, repoRoot)
+
+	merged := &SessionInfo{
+		Tool:         ToolClaudeCode,
+		FilesWritten: make(map[string]struct{}),
+	}
+
+	for _, p := range paths {
+		info, err := parseClaudeSession(p, repoRoot)
+		if err != nil || info == nil {
+			continue
+		}
+		for f := range info.FilesWritten {
+			merged.FilesWritten[f] = struct{}{}
+		}
+		if info.Model != "" {
+			merged.Model = info.Model
+		}
+		merged.TotalTokens += info.TotalTokens
+		merged.SessionDurationSec += info.SessionDurationSec
+	}
+
+	if len(merged.FilesWritten) == 0 {
+		return nil, nil
+	}
+	return merged, nil
 }
 
 func getCommittedFiles(repoRoot string) ([]string, error) {

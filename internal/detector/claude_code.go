@@ -53,24 +53,21 @@ func claudeSessionDir(repoRoot string) string {
 	return filepath.Join(homeDir, ".claude", "projects", encoded)
 }
 
-// findLatestSession finds the most recently modified .jsonl file in the session dir,
-// excluding agent-*.jsonl files. Only considers files modified within maxAge.
-func findLatestSession(sessionDir string, maxAge time.Duration) (string, error) {
+// findRecentSessions returns all .jsonl files in the session dir modified
+// within maxAge. This includes agent-*.jsonl files (sub-agent sessions that
+// also contain Edit/Write calls).
+func findRecentSessions(sessionDir string, maxAge time.Duration) ([]string, error) {
 	entries, err := os.ReadDir(sessionDir)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
-	var bestPath string
-	var bestModTime time.Time
 	cutoff := time.Now().Add(-maxAge)
+	var paths []string
 
 	for _, entry := range entries {
 		name := entry.Name()
 		if entry.IsDir() || !strings.HasSuffix(name, ".jsonl") {
-			continue
-		}
-		if strings.HasPrefix(name, "agent-") {
 			continue
 		}
 		info, err := entry.Info()
@@ -80,16 +77,13 @@ func findLatestSession(sessionDir string, maxAge time.Duration) (string, error) 
 		if info.ModTime().Before(cutoff) {
 			continue
 		}
-		if info.ModTime().After(bestModTime) {
-			bestModTime = info.ModTime()
-			bestPath = filepath.Join(sessionDir, name)
-		}
+		paths = append(paths, filepath.Join(sessionDir, name))
 	}
 
-	if bestPath == "" {
-		return "", fmt.Errorf("no recent Claude Code sessions found in %s", sessionDir)
+	if len(paths) == 0 {
+		return nil, fmt.Errorf("no recent Claude Code sessions found in %s", sessionDir)
 	}
-	return bestPath, nil
+	return paths, nil
 }
 
 // parseClaudeSession streams a JSONL file and extracts session info.

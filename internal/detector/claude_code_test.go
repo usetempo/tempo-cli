@@ -149,35 +149,73 @@ func TestClaudeSessionDir(t *testing.T) {
 	}
 }
 
-func TestFindLatestSession(t *testing.T) {
+func TestFindRecentSessions(t *testing.T) {
 	dir := t.TempDir()
-
-	// Create an agent file (should be skipped)
-	if err := os.WriteFile(filepath.Join(dir, "agent-sub.jsonl"), []byte("{}"), 0644); err != nil {
-		t.Fatal(err)
-	}
 
 	// Create a non-jsonl file (should be skipped)
 	if err := os.WriteFile(filepath.Join(dir, "notes.txt"), []byte("hi"), 0644); err != nil {
 		t.Fatal(err)
 	}
 
-	// Create a valid session file
-	sessionPath := filepath.Join(dir, "abc123.jsonl")
-	if err := os.WriteFile(sessionPath, []byte("{}"), 0644); err != nil {
+	// Create two main session files
+	session1 := filepath.Join(dir, "abc123.jsonl")
+	if err := os.WriteFile(session1, []byte("{}"), 0644); err != nil {
+		t.Fatal(err)
+	}
+	session2 := filepath.Join(dir, "def456.jsonl")
+	if err := os.WriteFile(session2, []byte("{}"), 0644); err != nil {
 		t.Fatal(err)
 	}
 
-	got, err := findLatestSession(dir, 72*time.Hour)
+	// Create an agent sub-session (should be included)
+	agentSession := filepath.Join(dir, "agent-sub.jsonl")
+	if err := os.WriteFile(agentSession, []byte("{}"), 0644); err != nil {
+		t.Fatal(err)
+	}
+
+	got, err := findRecentSessions(dir, 72*time.Hour)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if got != sessionPath {
-		t.Errorf("got %q, want %q", got, sessionPath)
+	sort.Strings(got)
+
+	want := []string{session1, agentSession, session2}
+	sort.Strings(want)
+
+	if !equal(got, want) {
+		t.Errorf("got %v, want %v", got, want)
 	}
 }
 
-func TestFindLatestSession_NoRecentFiles(t *testing.T) {
+func TestFindRecentSessions_FiltersOldFiles(t *testing.T) {
+	dir := t.TempDir()
+
+	// Create a recent session
+	recent := filepath.Join(dir, "recent.jsonl")
+	if err := os.WriteFile(recent, []byte("{}"), 0644); err != nil {
+		t.Fatal(err)
+	}
+
+	// Create an old session
+	oldPath := filepath.Join(dir, "old.jsonl")
+	if err := os.WriteFile(oldPath, []byte("{}"), 0644); err != nil {
+		t.Fatal(err)
+	}
+	oldTime := time.Now().Add(-5 * 24 * time.Hour)
+	if err := os.Chtimes(oldPath, oldTime, oldTime); err != nil {
+		t.Fatal(err)
+	}
+
+	got, err := findRecentSessions(dir, 72*time.Hour)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(got) != 1 || got[0] != recent {
+		t.Errorf("got %v, want [%s]", got, recent)
+	}
+}
+
+func TestFindRecentSessions_NoRecentFiles(t *testing.T) {
 	dir := t.TempDir()
 	sessionPath := filepath.Join(dir, "old.jsonl")
 	if err := os.WriteFile(sessionPath, []byte("{}"), 0644); err != nil {
@@ -190,15 +228,15 @@ func TestFindLatestSession_NoRecentFiles(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	_, err := findLatestSession(dir, 72*time.Hour)
+	_, err := findRecentSessions(dir, 72*time.Hour)
 	if err == nil {
 		t.Error("expected error for no recent files")
 	}
 }
 
-func TestFindLatestSession_EmptyDir(t *testing.T) {
+func TestFindRecentSessions_EmptyDir(t *testing.T) {
 	dir := t.TempDir()
-	_, err := findLatestSession(dir, 72*time.Hour)
+	_, err := findRecentSessions(dir, 72*time.Hour)
 	if err == nil {
 		t.Error("expected error for empty dir")
 	}
