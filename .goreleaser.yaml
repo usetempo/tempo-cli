@@ -29,6 +29,7 @@ brews:
   - repository:
       owner: usetempo
       name: homebrew-tap
+      token: "{{ .Env.HOMEBREW_TAP_GITHUB_TOKEN }}"
     homepage: https://github.com/usetempo/tempo-cli
     description: AI code attribution for git commits
     install: |
