@@ -21,12 +21,6 @@ Supported platforms: macOS and Linux (Intel & ARM).
 brew install usetempo/tap/tempo-cli
 ```
 
-**curl:**
-
-```sh
-curl -fsSL https://get.tempo.dev/install.sh | sh
-```
-
 **Go:**
 
 ```sh
